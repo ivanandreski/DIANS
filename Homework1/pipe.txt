@@ -1,0 +1,8 @@
+# Од фајлот macedonia-latest.osm, кој ги содржи сите податоци за македонија, ги влечеме податоците за кафулиња и ресторани.
+Тоа го правиме со помос на алатките osmfilter и osmconvert. Филтер користиме за да ги изфилтрираме потребните нформации
+од macedonia-latest.osm, а конверторот го користиме за податоците да се запишат во наша локална база со .csv формат.
+
+Ова го постигнуваме со помош на следниве команди, кои се извршуваат во command prompt:
+1. osmfilter macedonia-latest.osm --keep="amenity=cafe" | osmconvert64-0.8.8p.exe - --all-to-nodes --csv="@id @lon @lat name" --csv-headline --csv-separator="," -o="cafe.csv"
+2. osmfilter macedonia-latest.osm --keep="amenity=fast_food" | osmconvert64-0.8.8p.exe - --all-to-nodes --csv="@id @lon @lat name" --csv-headline --csv-separator="," -o="fast_food.csv"
+3. osmfilter macedonia-latest.osm --keep="amenity=restaurant" | osmconvert64-0.8.8p.exe - --all-to-nodes --csv="@id @lon @lat name" --csv-headline --csv-separator="," -o="restaurant.csv"
