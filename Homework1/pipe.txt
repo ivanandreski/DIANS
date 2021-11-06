@@ -6,3 +6,5 @@
 1. osmfilter macedonia-latest.osm --keep="amenity=cafe" | osmconvert64-0.8.8p.exe - --all-to-nodes --csv="@id @lon @lat name" --csv-headline --csv-separator="," -o="cafe.csv"
 2. osmfilter macedonia-latest.osm --keep="amenity=fast_food" | osmconvert64-0.8.8p.exe - --all-to-nodes --csv="@id @lon @lat name" --csv-headline --csv-separator="," -o="fast_food.csv"
 3. osmfilter macedonia-latest.osm --keep="amenity=restaurant" | osmconvert64-0.8.8p.exe - --all-to-nodes --csv="@id @lon @lat name" --csv-headline --csv-separator="," -o="restaurant.csv"
+4. osmfilter macedonia-latest.osm --keep="amenity=bar" | osmconvert64-0.8.8p.exe - --all-to-nodes --csv="@id @lon @lat name" --csv-headline --csv-separator="," -o="bar.csv"
+5. osmfilter macedonia-latest.osm --keep="amenity=pub" | osmconvert64-0.8.8p.exe - --all-to-nodes --csv="@id @lon @lat name" --csv-headline --csv-separator="," -o="pub.csv"
