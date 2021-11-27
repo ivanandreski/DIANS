@@ -5,23 +5,25 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent }     from './app.component';
 import { HomeComponent }    from './components/home/home.component';
 import { MapComponent }     from './components/map/map.component';
-import { RouterModule }     from '@angular/router';
-import { NbThemeModule }    from '@nebular/theme';
-import { HttpClientModule } from '@angular/common/http';
+import { RouterModule }                                  from '@angular/router';
+import { NbLayoutModule, NbThemeModule, NbWindowModule } from '@nebular/theme';
+import { HttpClientModule }                              from '@angular/common/http';
 import { MarkerService }    from './services/marker.service';
 
 @NgModule({
   declarations: [
     AppComponent,
     HomeComponent,
-    MapComponent
+    MapComponent,
   ],
   imports: [
     BrowserModule,
     AppRoutingModule,
     RouterModule,
     NbThemeModule.forRoot(),
-    HttpClientModule
+    HttpClientModule,
+    NbWindowModule.forChild(),
+    NbLayoutModule
   ],
   providers: [
     MarkerService
