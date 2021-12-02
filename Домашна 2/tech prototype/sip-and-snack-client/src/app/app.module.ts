@@ -1,14 +1,26 @@
-import { NgModule } from '@angular/core';
+import { NgModule }      from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 
-import { AppRoutingModule } from './app-routing.module';
-import { AppComponent }     from './app.component';
-import { HomeComponent }    from './components/home/home.component';
-import { MapComponent }     from './components/map/map.component';
+import { AppRoutingModule }                              from './app-routing.module';
+import { AppComponent }                                  from './app.component';
+import { HomeComponent }                                 from './components/home/home.component';
+import { MapComponent }                                  from './components/map/map.component';
 import { RouterModule }                                  from '@angular/router';
-import { NbLayoutModule, NbThemeModule, NbWindowModule } from '@nebular/theme';
+import {
+  NbButtonGroupModule,
+  NbButtonModule,
+  NbInputModule,
+  NbLayoutModule,
+  NbSelectModule,
+  NbThemeModule,
+  NbToastrModule,
+  NbWindowModule
+}                                                        from '@nebular/theme';
 import { HttpClientModule }                              from '@angular/common/http';
-import { MarkerService }    from './services/marker.service';
+import { MarkerService }                                 from './services/marker.service';
+import { MapService }                                    from './services/map.service';
+import { ReactiveFormsModule }                           from '@angular/forms';
+import { BrowserAnimationsModule, NoopAnimationsModule } from '@angular/platform-browser/animations';
 
 @NgModule({
   declarations: [
@@ -23,11 +35,21 @@ import { MarkerService }    from './services/marker.service';
     NbThemeModule.forRoot(),
     HttpClientModule,
     NbWindowModule.forChild(),
-    NbLayoutModule
+    NbLayoutModule,
+    NbInputModule,
+    ReactiveFormsModule,
+    NbButtonGroupModule,
+    NbButtonModule,
+    NbSelectModule,
+    NbToastrModule.forRoot(),
+    BrowserAnimationsModule,
+    NoopAnimationsModule
   ],
   providers: [
-    MarkerService
+    MarkerService,
+    MapService
   ],
   bootstrap: [AppComponent]
 })
-export class AppModule { }
+export class AppModule {
+}

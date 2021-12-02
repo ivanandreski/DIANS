@@ -1,9 +1,13 @@
-import { AfterViewInit, Component, OnInit } from '@angular/core';
-import * as Leaflet                         from 'leaflet';
-import { MarkerService }                    from '../../services/marker.service';
-import { MOCK_BAR }                         from '../../domain/mock-data';
-import { ICON_DEFAULT }                     from '../../domain/constants';
-import { NbWindowService }                  from '@nebular/theme';
+import { AfterViewInit, Component, OnInit }          from '@angular/core';
+import * as Leaflet                                  from 'leaflet';
+import { MarkerService }                             from '../../services/marker.service';
+import { MOCK_BAR }                                  from '../../domain/mock-data';
+import { ICON_DEFAULT, TILE_LAYER }                  from '../../domain/constants';
+import { MapLocation }                               from '../../domain/map-location';
+import { MapService }                                from '../../services/map.service';
+import { MapItem }                                   from '../../domain/map-item';
+import { FormControl, FormGroup }                    from '@angular/forms';
+import { NbGlobalPhysicalPosition, NbToastrService } from '@nebular/theme';
 
 @Component({
   selector: 'app-map',
@@ -12,63 +16,106 @@ import { NbWindowService }                  from '@nebular/theme';
 })
 export class MapComponent implements OnInit, AfterViewInit {
 
+  userLocation: MapLocation | null = null;
+  selectedDestination: MapLocation | null = null;
+  form: FormGroup;
+  selectedTravelKind = 'foot-walking';
   private map;
-  private layerGroup;
-  userLocation: {lat: number, lon: number} | null = null;
+  private markerLayer;
+  private roadLayer;
+  private userLocationLayer;
 
-  constructor(private markerService: MarkerService, private windowService: NbWindowService) { }
+  constructor(
+    private markerService: MarkerService,
+    private mapService: MapService,
+    private toastrService: NbToastrService,
+  ) {
+  }
 
   ngOnInit(): void {
-
     Leaflet.Marker.prototype.options.icon = ICON_DEFAULT;
-    this.getLocation()
+    this.form = new FormGroup({
+      search: new FormControl(''),
+      travelKind: new FormControl('')
+    });
 
+    this.form.get('travelKind')?.patchValue('foot-walking');
   }
 
   ngAfterViewInit(): void {
-    this.initMap()
-    this.markerService.makeMarkers(this.layerGroup, MOCK_BAR)
-    // this.layerGroup.clearLayers()
+    this.initMap();
+    this.makeMarkers(this.markerLayer, MOCK_BAR);
+    this.getLocation(this.map);
+  }
+
+  drawRoads() {
+    this.mapService.getRoadLocations(this.userLocation!, this.selectedDestination!, this.form.value.travelKind)
+      .subscribe((val: any) => {
+          this.roadLayer.clearLayers();
+          const wayPoints = this.mapService.getRoads(val);
+          const polyline = Leaflet.polyline(wayPoints, { color: '#3366ff', opacity: 1, weight: 3 });
+          polyline.addTo(this.roadLayer);
+        },
+        error => {
+          this.toastrService.danger('Something went wrong while retrieving path data!', 'Error', { position: NbGlobalPhysicalPosition.BOTTOM_RIGHT });
+        });
   }
 
   private initMap(): void {
     this.map = Leaflet.map('map', {
-      center: [ 41.724182, 21.774216 ],
+      center: [41.724182, 21.774216],
       zoom: 8
     });
 
-    this.layerGroup = Leaflet.layerGroup().addTo(this.map)
+    this.markerLayer = Leaflet.layerGroup().addTo(this.map);
+    this.roadLayer = Leaflet.layerGroup().addTo(this.map);
+    this.userLocationLayer = Leaflet.layerGroup().addTo(this.map);
 
-    const tiles = Leaflet.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      maxZoom: 18,
-      minZoom: 8,
-      attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-    });
-
-    tiles.addTo(this.map);
+    TILE_LAYER.addTo(this.map);
   }
 
-  private getLocation() {
+  private makeMarkers(layerGroup: Leaflet.LayerGroup, items: MapItem[]) {
+    for (const item of items) {
+      const marker = Leaflet.marker([item.lat, item.lon]);
+
+      marker.bindPopup(this.markerService.popupInfo(item));
+      marker.on('click', () => {
+        this.selectedDestination = { lat: item.lat, lon: item.lon };
+      });
+      marker.addTo(layerGroup);
+    }
+  }
+
+  private getLocation(map: Leaflet.Map) {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
           if (position) {
-            console.log("Latitude: " + position.coords.latitude +
-              "Longitude: " + position.coords.longitude);
-            this.userLocation = {
-              lat: position.coords.latitude,
-              lon: position.coords.longitude,
-            }
-            console.log(this.userLocation)
-            this.markerService.addMarker(this.map, this.userLocation.lat, this.userLocation.lon)
-            this.map.setView([this.userLocation.lat, this.userLocation.lon], 12)
+            const lon = position.coords.longitude;
+            const lat = position.coords.latitude;
+            this.userLocation = { lat, lon };
+            this.userLocationLayer.clearLayers();
+            this.markerService.addMarker(this.userLocationLayer, lat, lon);
+            map.setView([lat, lon], 12);
           }
         },
         (error) => console.log(error)
       );
-    } else {
-      alert("Geolocation is not supported by this browser.");
+
+      navigator.geolocation.watchPosition(
+        (position) => {
+          if (position) {
+            const lon = position.coords.longitude;
+            const lat = position.coords.latitude;
+            this.userLocation = { lat, lon };
+            this.userLocationLayer.clearLayers();
+            this.markerService.addMarker(this.userLocationLayer, lat, lon);
+          }
+        }
+      );
+    }
+    else {
+      alert('Browser doesn\'t support location.');
     }
   }
-
 }

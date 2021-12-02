@@ -34,4 +34,4 @@ export const MOCK_BAR = [
     name: 'Клуб Капан Ан',
     type: 'bar',
   },
-]
+];
