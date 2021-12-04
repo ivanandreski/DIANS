@@ -20,4 +20,9 @@ public class PlaceController {
     private List<Place> findClosestOfType(@PathVariable String type, @RequestParam Double myLon, @RequestParam Double myLat) {
         return placeService.findClosetFiveOfType(type, myLon, myLat);
     }
+
+    @GetMapping("/all/{type}")
+    private List<Place> findAllOfType(@PathVariable String type) {
+        return placeService.findAllOfType(type);
+    }
 }
