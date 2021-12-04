@@ -1,15 +1,15 @@
 <nb-layout>
   <nb-layout-column>
     <div [formGroup]="form" class="header">
-      <input formControlName="search" nbInput placeholder="Search for a place..." shape="round" status="primary"
-             type="text">
+<!--      <input formControlName="search" nbInput placeholder="Search for a place..." shape="round" status="primary"-->
+<!--             type="text">-->
 
       <div>
-        <nb-button-group shape="round" status="primary">
+        <nb-button-group shape="round" status="primary" (valueChange)="onSelectType($event)">
           <button nbButtonToggle value="bar">bar</button>
           <button nbButtonToggle value="pub">pub</button>
           <button nbButtonToggle value="cafe">cafe</button>
-          <button nbButtonToggle value="fast food">fast food</button>
+          <button nbButtonToggle value="fast_food">fast food</button>
           <button nbButtonToggle value="restaurant">restaurant</button>
         </nb-button-group>
       </div>

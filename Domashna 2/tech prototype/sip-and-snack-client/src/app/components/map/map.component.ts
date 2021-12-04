@@ -1,13 +1,13 @@
 import { AfterViewInit, Component, OnInit }          from '@angular/core';
 import * as Leaflet                                  from 'leaflet';
 import { MarkerService }                             from '../../services/marker.service';
-import { MOCK_BAR }                                  from '../../domain/mock-data';
 import { ICON_DEFAULT, TILE_LAYER }                  from '../../domain/constants';
 import { MapLocation }                               from '../../domain/map-location';
 import { MapService }                                from '../../services/map.service';
 import { MapItem }                                   from '../../domain/map-item';
 import { FormControl, FormGroup }                    from '@angular/forms';
 import { NbGlobalPhysicalPosition, NbToastrService } from '@nebular/theme';
+import { ApiService }                                from '../../services/api.service';
 
 @Component({
   selector: 'app-map',
@@ -29,6 +29,7 @@ export class MapComponent implements OnInit, AfterViewInit {
     private markerService: MarkerService,
     private mapService: MapService,
     private toastrService: NbToastrService,
+    private apiService: ApiService
   ) {
   }
 
@@ -44,7 +45,6 @@ export class MapComponent implements OnInit, AfterViewInit {
 
   ngAfterViewInit(): void {
     this.initMap();
-    this.makeMarkers(this.markerLayer, MOCK_BAR);
     this.getLocation(this.map);
   }
 
@@ -59,6 +59,15 @@ export class MapComponent implements OnInit, AfterViewInit {
         error => {
           this.toastrService.danger('Something went wrong while retrieving path data!', 'Error', { position: NbGlobalPhysicalPosition.BOTTOM_RIGHT });
         });
+  }
+
+  onSelectType(type: string[]) {
+    if (this.userLocation) {
+      this.getPlacesByTypeWithLocation(type[0], this.userLocation);
+    }
+    else {
+      this.getPlacesByType(type[0]);
+    }
   }
 
   private initMap(): void {
@@ -117,5 +126,21 @@ export class MapComponent implements OnInit, AfterViewInit {
     else {
       alert('Browser doesn\'t support location.');
     }
+  }
+
+  private getPlacesByType(type: string) {
+    this.apiService.getPlacesForType(type)
+      .subscribe(it => {
+        this.markerLayer.clearLayers();
+        this.makeMarkers(this.markerLayer, it);
+      });
+  }
+
+  private getPlacesByTypeWithLocation(type: string, location: MapLocation) {
+    this.apiService.getPlacesForTypeWithLocation(type, location)
+      .subscribe(it => {
+        this.markerLayer.clearLayers();
+        this.makeMarkers(this.markerLayer, it);
+      });
   }
 }
