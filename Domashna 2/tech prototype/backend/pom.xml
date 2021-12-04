@@ -15,6 +15,7 @@
     <description>backend</description>
     <properties>
         <java.version>11</java.version>
+        <start-class>mk.finki.dians.backend.backend.BackendApplication</start-class>
     </properties>
     <dependencies>
         <dependency>
