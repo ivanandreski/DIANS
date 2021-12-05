@@ -68,6 +68,8 @@ export class MapComponent implements OnInit, AfterViewInit {
     else {
       this.getPlacesByType(type[0]);
     }
+
+    this.roadLayer.clearLayers();
   }
 
   private initMap(): void {
@@ -108,7 +110,12 @@ export class MapComponent implements OnInit, AfterViewInit {
             map.setView([lat, lon], 12);
           }
         },
-        (error) => console.log(error)
+        (error) => console.log(error),
+        {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 0
+        }
       );
 
       navigator.geolocation.watchPosition(
@@ -120,6 +127,12 @@ export class MapComponent implements OnInit, AfterViewInit {
             this.userLocationLayer.clearLayers();
             this.markerService.addMarker(this.userLocationLayer, lat, lon);
           }
+        },
+        (error) => console.log(error),
+        {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 0
         }
       );
     }
