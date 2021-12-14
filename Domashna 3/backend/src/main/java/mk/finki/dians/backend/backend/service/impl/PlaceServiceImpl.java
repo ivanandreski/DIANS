@@ -31,6 +31,14 @@ public class PlaceServiceImpl implements PlaceService {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public List<Place> findPlaceContainingSearchParameter(String param) {
+        return placeRepository.findAll()
+                .stream()
+                .filter(place -> place.getName().toLowerCase().contains(param.toLowerCase()))
+                .collect(Collectors.toList());
+    }
+
     private double distance(double lon1, double lat1, double lon2, double lat2) {
         double theta = lon1 - lon2;
         double dist = Math.sin(deg2rad(lat1))

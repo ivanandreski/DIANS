@@ -17,12 +17,17 @@ public class PlaceController {
     }
 
     @GetMapping("/{type}")
-    private List<Place> findClosestOfType(@PathVariable String type, @RequestParam Double myLon, @RequestParam Double myLat) {
+    public List<Place> findClosestOfType(@PathVariable String type, @RequestParam Double myLon, @RequestParam Double myLat) {
         return placeService.findClosetFiveOfType(type, myLon, myLat);
     }
 
     @GetMapping("/all/{type}")
-    private List<Place> findAllOfType(@PathVariable String type) {
+    public List<Place> findAllOfType(@PathVariable String type) {
         return placeService.findAllOfType(type);
+    }
+
+    @GetMapping("/search")
+    public List<Place> findAllContainingSearchParameter(@RequestParam String searchParameter) {
+        return placeService.findPlaceContainingSearchParameter(searchParameter);
     }
 }

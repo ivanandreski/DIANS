@@ -30,4 +30,24 @@ public class PlaceRepository {
 
         return allPlaces;
     }
+
+    public List<Place> findAll() {
+        List<Place> allPlaces = new ArrayList<>();
+        File file = new File(databasePath);
+        Arrays.stream(file.listFiles())
+                .forEach(f -> {
+                    try {
+                        BufferedReader bf = new BufferedReader(new FileReader(f));
+                        String line = bf.readLine();
+                        while ((line = bf.readLine()) != null) {
+                            String[] placeArray = line.split(",");
+                            allPlaces.add(Place.placeFactory(placeArray, f.getName().replaceAll(".csv", "")));
+                        }
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                });
+
+        return allPlaces;
+    }
 }
