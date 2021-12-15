@@ -2,6 +2,7 @@ package mk.finki.dians.backend.backend.web;
 
 import mk.finki.dians.backend.backend.model.Place;
 import mk.finki.dians.backend.backend.service.PlaceService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -27,7 +28,14 @@ public class PlaceController {
     }
 
     @GetMapping("/search")
-    public List<Place> findAllContainingSearchParameter(@RequestParam String searchParameter) {
-        return placeService.findPlaceContainingSearchParameter(searchParameter);
+    public List<Place> findAllContainingSearchParameter(@RequestParam String param) {
+        return placeService.findPlaceContainingSearchParameter(param);
+    }
+
+    @GetMapping()
+    public ResponseEntity<Place> findById(@RequestParam Long id) {
+        return placeService.findById(id)
+                .map(place -> ResponseEntity.ok().body(place))
+                .orElseGet(() -> ResponseEntity.badRequest().build());
     }
 }

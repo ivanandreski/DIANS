@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -37,6 +38,14 @@ public class PlaceServiceImpl implements PlaceService {
                 .stream()
                 .filter(place -> place.getName().toLowerCase().contains(param.toLowerCase()))
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public Optional<Place> findById(Long id) {
+        return placeRepository.findAll()
+                .stream()
+                .filter(place -> place.getId().equals(id))
+                .findFirst();
     }
 
     private double distance(double lon1, double lat1, double lon2, double lat2) {
