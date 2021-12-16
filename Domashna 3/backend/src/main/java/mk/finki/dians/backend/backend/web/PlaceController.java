@@ -18,8 +18,12 @@ public class PlaceController {
     }
 
     @GetMapping("/{type}")
-    public List<Place> findClosestOfType(@PathVariable String type, @RequestParam Double myLon, @RequestParam Double myLat) {
-        return placeService.findClosetFiveOfType(type, myLon, myLat);
+    public List<Place> findClosestOfType(@PathVariable String type,
+                                         @RequestParam Double myLon,
+                                         @RequestParam Double myLat,
+                                         @RequestParam(required = false) Integer limit) {
+
+        return placeService.findClosetOfType(type, myLon, myLat, limit);
     }
 
     @GetMapping("/all/{type}")

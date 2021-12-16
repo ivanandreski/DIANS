@@ -7,7 +7,7 @@ import java.util.Optional;
 
 public interface PlaceService {
     List<Place> findAllOfType(String type);
-    List<Place> findClosetFiveOfType(String type, Double myLon, Double myLat);
+    List<Place> findClosetOfType(String type, Double myLon, Double myLat, Integer limit);
     List<Place> findPlaceContainingSearchParameter(String param);
     Optional<Place> findById(Long id);
 }

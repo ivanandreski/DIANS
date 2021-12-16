@@ -24,12 +24,16 @@ public class PlaceServiceImpl implements PlaceService {
     }
 
     @Override
-    public List<Place> findClosetFiveOfType(String type, Double myLon, Double myLat) {
-        return placeRepository.findAllOfType(type)
+    public List<Place> findClosetOfType(String type, Double myLon, Double myLat, Integer limit) {
+        List<Place> places = placeRepository.findAllOfType(type)
                 .stream()
                 .sorted(Comparator.comparing(place -> this.distance(myLon, myLat, place.getLon(), place.getLat())))
-                .limit(5)
                 .collect(Collectors.toList());
+
+        if(limit != null)
+            return places.stream().limit(limit).collect(Collectors.toList());
+        else
+            return places;
     }
 
     @Override
