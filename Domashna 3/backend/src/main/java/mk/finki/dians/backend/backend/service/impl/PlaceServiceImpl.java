@@ -27,7 +27,7 @@ public class PlaceServiceImpl implements PlaceService {
     public List<Place> findClosetOfType(String type, Double myLon, Double myLat, Integer limit) {
         List<Place> places = placeRepository.findAllOfType(type)
                 .stream()
-                .sorted(Comparator.comparing(place -> this.distance(myLon, myLat, place.getLon(), place.getLat())))
+                .sorted(Comparator.comparing(place -> this.distanceInKilometers(myLon, myLat, place.getLon(), place.getLat())))
                 .collect(Collectors.toList());
 
         if(limit != null)
@@ -52,24 +52,22 @@ public class PlaceServiceImpl implements PlaceService {
                 .findFirst();
     }
 
-    private double distance(double lon1, double lat1, double lon2, double lat2) {
-        double theta = lon1 - lon2;
-        double dist = Math.sin(deg2rad(lat1))
-                * Math.sin(deg2rad(lat2))
-                + Math.cos(deg2rad(lat1))
-                * Math.cos(deg2rad(lat2))
-                * Math.cos(deg2rad(theta));
-        dist = Math.acos(dist);
-        dist = rad2deg(dist);
-        dist = dist * 60 * 1.1515;
-        return (dist);
-    }
+    private double distanceInKilometers(double lon1, double lat1, double lon2, double lat2) {
+        // distance between latitudes and longitudes
+        double dLat = Math.toRadians(lat2 - lat1);
+        double dLon = Math.toRadians(lon2 - lon1);
 
-    private double deg2rad(double deg) {
-        return (deg * Math.PI / 180.0);
-    }
+        // convert to radians
+        lat1 = Math.toRadians(lat1);
+        lat2 = Math.toRadians(lat2);
 
-    private double rad2deg(double rad) {
-        return (rad * 180.0 / Math.PI);
+        // apply formulae
+        double a = Math.pow(Math.sin(dLat / 2), 2) +
+                Math.pow(Math.sin(dLon / 2), 2) *
+                        Math.cos(lat1) *
+                        Math.cos(lat2);
+        double rad = 6371;
+        double c = 2 * Math.asin(Math.sqrt(a));
+        return rad * c;
     }
 }
