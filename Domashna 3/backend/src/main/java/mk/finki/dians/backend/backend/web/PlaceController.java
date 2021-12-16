@@ -43,8 +43,7 @@ public class PlaceController {
                 .orElseGet(() -> ResponseEntity.badRequest().build());
     }
 
-    //FOR TESTING
-    @GetMapping("/testing/{type}")
+    @GetMapping("/radius/{type}")
     public List<Place> findClosestOfTypeWithinRadus(@PathVariable String type,
                                          @RequestParam Double myLon,
                                          @RequestParam Double myLat,
