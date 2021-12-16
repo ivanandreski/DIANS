@@ -23,7 +23,7 @@ public class PlaceController {
                                          @RequestParam Double myLat,
                                          @RequestParam(required = false) Integer limit) {
 
-        return placeService.findClosetOfType(type, myLon, myLat, limit);
+        return placeService.findClosestOfType(type, myLon, myLat, limit);
     }
 
     @GetMapping("/all/{type}")
@@ -49,6 +49,6 @@ public class PlaceController {
                                          @RequestParam Double myLat,
                                          @RequestParam Double radius) {
 
-        return placeService.findClosetOfTypeInRadius(type, myLon, myLat, radius);
+        return placeService.findClosestOfTypeInRadius(type, myLon, myLat, radius);
     }
 }

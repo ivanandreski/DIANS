@@ -24,7 +24,7 @@ public class PlaceServiceImpl implements PlaceService {
     }
 
     @Override
-    public List<Place> findClosetOfType(String type, Double myLon, Double myLat, Integer limit) {
+    public List<Place> findClosestOfType(String type, Double myLon, Double myLat, Integer limit) {
         List<Place> places = placeRepository.findAllOfType(type)
                 .stream()
                 .sorted(Comparator.comparing(place -> this.distanceInKilometers(myLon, myLat, place.getLon(), place.getLat())))
@@ -37,7 +37,7 @@ public class PlaceServiceImpl implements PlaceService {
     }
 
     @Override
-    public List<Place> findClosetOfTypeInRadius(String type, Double myLon, Double myLat, Double radius) {
+    public List<Place> findClosestOfTypeInRadius(String type, Double myLon, Double myLat, Double radius) {
         return placeRepository.findAllOfType(type)
                 .stream()
                 .filter(place -> this.distanceInKilometers(myLon, myLat, place.getLon(), place.getLat()) < radius)

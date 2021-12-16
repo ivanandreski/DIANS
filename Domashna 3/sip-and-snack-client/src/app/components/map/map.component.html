@@ -1,0 +1,36 @@
+<nb-layout>
+  <nb-layout-column>
+    <div [formGroup]="form" class="header">
+<!--      <input formControlName="search" nbInput placeholder="Search for a place..." shape="round" status="primary"-->
+<!--             type="text">-->
+
+      <div>
+        <nb-button-group shape="round" status="primary" (valueChange)="onSelectType($event)">
+          <button nbButtonToggle value="bar">bar</button>
+          <button nbButtonToggle value="pub">pub</button>
+          <button nbButtonToggle value="cafe">cafe</button>
+          <button nbButtonToggle value="fast_food">fast food</button>
+          <button nbButtonToggle value="restaurant">restaurant</button>
+        </nb-button-group>
+      </div>
+
+      <div class="path">
+        <button (click)="drawRoads()" [disabled]="!selectedDestination || !userLocation" nbButton shape="round"
+                status="primary">
+          PATH
+        </button>
+        <nb-select [(selected)]="selectedTravelKind" formControlName="travelKind" placeholder="Select kind of travel..."
+                   shape="round" status="primary">
+          <nb-option value="foot-walking">Walking</nb-option>
+          <nb-option value="driving-car">Driving</nb-option>
+          <nb-option value="cycling-regular">Cycling</nb-option>
+        </nb-select>
+      </div>
+    </div>
+    <div class="map-container">
+      <div class="map-frame">
+        <div id="map"></div>
+      </div>
+    </div>
+  </nb-layout-column>
+</nb-layout>
