@@ -37,6 +37,14 @@ public class PlaceServiceImpl implements PlaceService {
     }
 
     @Override
+    public List<Place> findClosetOfTypeInRadius(String type, Double myLon, Double myLat, Double radius) {
+        return placeRepository.findAllOfType(type)
+                .stream()
+                .filter(place -> this.distanceInKilometers(myLon, myLat, place.getLon(), place.getLat()) < radius)
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public List<Place> findPlaceContainingSearchParameter(String param) {
         return placeRepository.findAll()
                 .stream()
