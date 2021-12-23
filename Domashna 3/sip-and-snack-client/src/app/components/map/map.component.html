@@ -1,11 +1,11 @@
 <nb-layout>
   <nb-layout-column>
     <div [formGroup]="form" class="header">
-<!--      <input formControlName="search" nbInput placeholder="Search for a place..." shape="round" status="primary"-->
-<!--             type="text">-->
+      <input [nbAutocomplete]="auto" formControlName="search" nbInput placeholder="Search for a place..." shape="round"
+             status="primary" type="text">
 
-      <div>
-        <nb-button-group shape="round" status="primary" (valueChange)="onSelectType($event)">
+      <div *ngIf="!isMobile">
+        <nb-button-group (valueChange)="onSelectType($event)" shape="round" status="primary">
           <button nbButtonToggle value="bar">bar</button>
           <button nbButtonToggle value="pub">pub</button>
           <button nbButtonToggle value="cafe">cafe</button>
@@ -14,7 +14,7 @@
         </nb-button-group>
       </div>
 
-      <div class="path">
+      <div *ngIf="!isMobile" class="path">
         <button (click)="drawRoads()" [disabled]="!selectedDestination || !userLocation" nbButton shape="round"
                 status="primary">
           PATH
@@ -32,5 +32,45 @@
         <div id="map"></div>
       </div>
     </div>
+    <div *ngIf="isMobile" [formGroup]="form" class="footer">
+      <button (click)="drawRoads()" [disabled]="!selectedDestination || !userLocation" nbButton shape="round" size="giant"
+              status="primary">
+        <nb-icon icon="corner-right-up-outline"></nb-icon>
+      </button>
+      <button [nbContextMenu]="typeContextItems" nbButton nbContextMenuTag="type-context-menu" shape="round" size="giant"
+              status="primary">
+        TYPE
+      </button>
+      <button [nbPopover]="travelKindRef" nbButton shape="round" size="giant" status="primary">
+        <!--        Stupid workaround for changing the icon on click       -->
+        <div *ngIf="travelKindIcon === 'walking'">
+          <nb-icon icon="walking" pack="font-awesome"></nb-icon>
+        </div>
+        <div *ngIf="travelKindIcon === 'car'">
+          <nb-icon icon="car" pack="font-awesome"></nb-icon>
+        </div>
+        <div *ngIf="travelKindIcon === 'biking'">
+          <nb-icon icon="biking" pack="font-awesome"></nb-icon>
+        </div>
+      </button>
+    </div>
   </nb-layout-column>
 </nb-layout>
+
+<ng-template #travelKindRef>
+  <button (click)="onSelectTravelKind('walking')" nbButton status="basic">
+    <nb-icon icon="walking" pack="font-awesome"></nb-icon>
+  </button>
+  <button (click)="onSelectTravelKind('car')" nbButton status="basic">
+    <nb-icon icon="car" pack="font-awesome"></nb-icon>
+  </button>
+  <button (click)="onSelectTravelKind('biking')" nbButton status="basic">
+    <nb-icon icon="biking" pack="font-awesome"></nb-icon>
+  </button>
+</ng-template>
+
+<nb-autocomplete #auto (selectedChange)="onSearchItemClicked($event)" [handleDisplayFn]="handleDisplay">
+  <nb-option *ngFor="let place of searchPlaces" [value]="place">
+    {{place.name}}
+  </nb-option>
+</nb-autocomplete>

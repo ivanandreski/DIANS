@@ -1,5 +1,6 @@
 .map-container {
   position: absolute;
+  z-index: 0;
   top: 50px;
   left: 0;
   right: 0;
@@ -21,6 +22,7 @@ nb-layout-column {
 .header {
   margin: 0.25rem;
   display: flex;
+  justify-content: center;
 }
 
 .header > input {
@@ -33,6 +35,11 @@ nb-layout-column {
   justify-content: flex-end;
 }
 
+.header > input {
+  flex-grow: 1;
+  display: flex;
+}
+
 .header > div {
   flex-grow: 2;
   display: flex;
@@ -41,4 +48,13 @@ nb-layout-column {
 .header > div > nb-button-group {
   margin: auto;
   justify-items: center;
+}
+
+.footer {
+  position: absolute;
+  z-index: 1;
+  bottom: 20px;
+  width: 100%;
+  display: flex;
+  justify-content: space-around;
 }

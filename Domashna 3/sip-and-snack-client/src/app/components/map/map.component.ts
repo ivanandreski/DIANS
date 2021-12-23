@@ -1,13 +1,15 @@
-import { AfterViewInit, Component, OnInit }          from '@angular/core';
-import * as Leaflet                                  from 'leaflet';
-import { MarkerService }                             from '../../services/marker.service';
-import { ICON_DEFAULT, TILE_LAYER }                  from '../../domain/constants';
-import { MapLocation }                               from '../../domain/map-location';
-import { MapService }                                from '../../services/map.service';
-import { MapItem }                                   from '../../domain/map-item';
-import { FormControl, FormGroup }                    from '@angular/forms';
-import { NbGlobalPhysicalPosition, NbToastrService } from '@nebular/theme';
-import { ApiService }                                from '../../services/api.service';
+import { AfterViewInit, Component, OnInit }                                          from '@angular/core';
+import * as Leaflet                                                                  from 'leaflet';
+import { MarkerService }                                                             from '../../services/marker.service';
+import { ICON_DEFAULT, TILE_LAYER }                                                  from '../../domain/constants';
+import { MapLocation }                                                               from '../../domain/map-location';
+import { MapService }                                                                from '../../services/map.service';
+import { MapItem }                                                                   from '../../domain/map-item';
+import { FormControl, FormGroup }                                                    from '@angular/forms';
+import { NbGlobalPhysicalPosition, NbIconLibraries, NbMenuService, NbToastrService } from '@nebular/theme';
+import { ApiService }                                                                from '../../services/api.service';
+import { DeviceDetectorService }                                                     from 'ngx-device-detector';
+import { debounceTime, distinctUntilChanged, filter, map, Observable }               from 'rxjs';
 
 @Component({
   selector: 'app-map',
@@ -20,16 +22,30 @@ export class MapComponent implements OnInit, AfterViewInit {
   selectedDestination: MapLocation | null = null;
   form: FormGroup;
   selectedTravelKind = 'foot-walking';
+  isMobile = false;
+  travelKindIcon = 'walking';
+  searchPlaces: MapItem[] = [];
+  search$: Observable<MapItem[]>;
+  typeContextItems = [
+    { title: 'Bar', data: 'bar' },
+    { title: 'Pub', data: 'pub' },
+    { title: 'Cafe', data: 'cafe' },
+    { title: 'Fast Food', data: 'fast_food' },
+    { title: 'Restaurant', data: 'restaurant' }];
   private map;
   private markerLayer;
   private roadLayer;
   private userLocationLayer;
+  private radiusLayer;
 
   constructor(
     private markerService: MarkerService,
     private mapService: MapService,
     private toastrService: NbToastrService,
-    private apiService: ApiService
+    private apiService: ApiService,
+    private deviceDetectorService: DeviceDetectorService,
+    private iconLibraries: NbIconLibraries,
+    private nbMenuService: NbMenuService
   ) {
   }
 
@@ -41,6 +57,29 @@ export class MapComponent implements OnInit, AfterViewInit {
     });
 
     this.form.get('travelKind')?.patchValue('foot-walking');
+    this.isMobile = this.deviceDetectorService.isMobile() || this.deviceDetectorService.isTablet();
+    this.iconLibraries.registerFontPack('font-awesome', { packClass: 'fas', iconClassPrefix: 'fa' });
+
+    this.nbMenuService.onItemClick()
+      .pipe(
+        filter(({ tag }) => tag === 'type-context-menu'),
+        map(({ item: { title, data } }) => data),
+      )
+      .subscribe(data => this.onSelectType([data]));
+
+    this.form.get('search')!.valueChanges
+      .pipe(
+        debounceTime(400),
+        distinctUntilChanged()
+      )
+      .subscribe(search => {
+        if (search !== '' || search !== null) {
+          this.apiService.getPlacesFromSearch(search)
+            .subscribe((val) => {
+              this.searchPlaces = val.slice(0, 10);
+            });
+        }
+      });
   }
 
   ngAfterViewInit(): void {
@@ -63,13 +102,31 @@ export class MapComponent implements OnInit, AfterViewInit {
 
   onSelectType(type: string[]) {
     if (this.userLocation) {
-      this.getPlacesByTypeWithLocation(type[0], this.userLocation);
+      this.getPlacesInRadius(type[0], this.userLocation);
     }
     else {
       this.getPlacesByType(type[0]);
     }
 
     this.roadLayer.clearLayers();
+  }
+
+  onSelectTravelKind(kind: string) {
+    this.travelKindIcon = kind;
+  }
+
+  onSearchItemClicked(item: MapItem) {
+    if (item) {
+      this.form.controls['search'].reset();
+      this.makeMarkers(this.markerLayer, [item]);
+      this.roadLayer.clearLayers();
+      this.selectedDestination = { lat: item.lat, lon: item.lon };
+      this.map.setView([item.lat, item.lon], 12);
+    }
+  }
+
+  handleDisplay(str: any) {
+    return typeof str === 'object' ? str.name : str;
   }
 
   private initMap(): void {
@@ -81,11 +138,13 @@ export class MapComponent implements OnInit, AfterViewInit {
     this.markerLayer = Leaflet.layerGroup().addTo(this.map);
     this.roadLayer = Leaflet.layerGroup().addTo(this.map);
     this.userLocationLayer = Leaflet.layerGroup().addTo(this.map);
+    this.radiusLayer = Leaflet.layerGroup().addTo(this.map);
 
     TILE_LAYER.addTo(this.map);
   }
 
   private makeMarkers(layerGroup: Leaflet.LayerGroup, items: MapItem[]) {
+    layerGroup.clearLayers();
     for (const item of items) {
       const marker = Leaflet.marker([item.lat, item.lon]);
 
@@ -107,6 +166,7 @@ export class MapComponent implements OnInit, AfterViewInit {
             this.userLocation = { lat, lon };
             this.userLocationLayer.clearLayers();
             this.markerService.addMarker(this.userLocationLayer, lat, lon);
+            Leaflet.circle([lat, lon], 10000, { color: 'green' }).addTo(this.radiusLayer);
             map.setView([lat, lon], 12);
           }
         },
@@ -126,6 +186,8 @@ export class MapComponent implements OnInit, AfterViewInit {
             this.userLocation = { lat, lon };
             this.userLocationLayer.clearLayers();
             this.markerService.addMarker(this.userLocationLayer, lat, lon);
+            this.radiusLayer.clearLayers();
+            Leaflet.circle([lat, lon], 10000, { color: 'green' }).addTo(this.radiusLayer);
           }
         },
         (error) => console.log(error),
@@ -144,15 +206,13 @@ export class MapComponent implements OnInit, AfterViewInit {
   private getPlacesByType(type: string) {
     this.apiService.getPlacesForType(type)
       .subscribe(it => {
-        this.markerLayer.clearLayers();
         this.makeMarkers(this.markerLayer, it);
       });
   }
 
-  private getPlacesByTypeWithLocation(type: string, location: MapLocation) {
-    this.apiService.getPlacesForTypeWithLocation(type, location)
+  private getPlacesInRadius(type: string, location: MapLocation) {
+    this.apiService.getPlacesInRadius(type, location)
       .subscribe(it => {
-        this.markerLayer.clearLayers();
         this.makeMarkers(this.markerLayer, it);
       });
   }
