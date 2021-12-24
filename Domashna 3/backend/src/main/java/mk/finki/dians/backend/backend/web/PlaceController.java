@@ -45,9 +45,9 @@ public class PlaceController {
 
     @GetMapping("/radius/{type}")
     public List<Place> findClosestOfTypeWithinRadus(@PathVariable String type,
-                                         @RequestParam Double myLon,
-                                         @RequestParam Double myLat,
-                                         @RequestParam Double radius) {
+                                                    @RequestParam Double myLon,
+                                                    @RequestParam Double myLat,
+                                                    @RequestParam Double radius) {
 
         return placeService.findClosestOfTypeInRadius(type, myLon, myLat, radius);
     }
