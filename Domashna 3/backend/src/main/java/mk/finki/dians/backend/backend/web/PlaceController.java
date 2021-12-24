@@ -23,7 +23,7 @@ public class PlaceController {
                                          @RequestParam Double myLat,
                                          @RequestParam(required = false) Integer limit) {
 
-        return placeService.findClosetOfType(type, myLon, myLat, limit);
+        return placeService.findClosestOfType(type, myLon, myLat, limit);
     }
 
     @GetMapping("/all/{type}")
@@ -41,5 +41,14 @@ public class PlaceController {
         return placeService.findById(id)
                 .map(place -> ResponseEntity.ok().body(place))
                 .orElseGet(() -> ResponseEntity.badRequest().build());
+    }
+
+    @GetMapping("/radius/{type}")
+    public List<Place> findClosestOfTypeWithinRadus(@PathVariable String type,
+                                                    @RequestParam Double myLon,
+                                                    @RequestParam Double myLat,
+                                                    @RequestParam Double radius) {
+
+        return placeService.findClosestOfTypeInRadius(type, myLon, myLat, radius);
     }
 }
