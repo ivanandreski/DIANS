@@ -3,19 +3,25 @@ import { BrowserModule } from '@angular/platform-browser';
 
 import { AppRoutingModule }                              from './app-routing.module';
 import { AppComponent }                                  from './app.component';
-import { HomeComponent }                                 from './components/home/home.component';
 import { MapComponent }                                  from './components/map/map.component';
 import { RouterModule }                                  from '@angular/router';
 import {
+  NbAutocompleteModule,
   NbButtonGroupModule,
   NbButtonModule,
+  NbContextMenuModule,
+  NbIconModule,
   NbInputModule,
   NbLayoutModule,
+  NbMenuModule,
+  NbMenuService,
+  NbPopoverModule,
   NbSelectModule,
   NbThemeModule,
   NbToastrModule,
   NbWindowModule
 }                                                        from '@nebular/theme';
+import { NbEvaIconsModule }                              from '@nebular/eva-icons';
 import { HttpClientModule }                              from '@angular/common/http';
 import { MarkerService }                                 from './services/marker.service';
 import { MapService }                                    from './services/map.service';
@@ -25,7 +31,6 @@ import { BrowserAnimationsModule, NoopAnimationsModule } from '@angular/platform
 @NgModule({
   declarations: [
     AppComponent,
-    HomeComponent,
     MapComponent,
   ],
   imports: [
@@ -43,11 +48,18 @@ import { BrowserAnimationsModule, NoopAnimationsModule } from '@angular/platform
     NbSelectModule,
     NbToastrModule.forRoot(),
     BrowserAnimationsModule,
-    NoopAnimationsModule
+    NoopAnimationsModule,
+    NbEvaIconsModule,
+    NbIconModule,
+    NbPopoverModule,
+    NbMenuModule.forRoot(),
+    NbContextMenuModule,
+    NbAutocompleteModule,
   ],
   providers: [
     MarkerService,
-    MapService
+    MapService,
+    NbMenuService,
   ],
   bootstrap: [AppComponent]
 })
