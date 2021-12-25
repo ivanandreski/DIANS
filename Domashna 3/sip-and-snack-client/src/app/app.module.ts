@@ -3,7 +3,6 @@ import { BrowserModule } from '@angular/platform-browser';
 
 import { AppRoutingModule }                              from './app-routing.module';
 import { AppComponent }                                  from './app.component';
-import { HomeComponent }                                 from './components/home/home.component';
 import { MapComponent }                                  from './components/map/map.component';
 import { RouterModule }                                  from '@angular/router';
 import {
@@ -32,7 +31,6 @@ import { BrowserAnimationsModule, NoopAnimationsModule } from '@angular/platform
 @NgModule({
   declarations: [
     AppComponent,
-    HomeComponent,
     MapComponent,
   ],
   imports: [
