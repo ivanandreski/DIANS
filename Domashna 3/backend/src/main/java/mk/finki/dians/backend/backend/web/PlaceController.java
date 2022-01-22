@@ -9,6 +9,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/place")
+@CrossOrigin
 public class PlaceController {
 
     private final PlaceService placeService;
@@ -18,6 +19,7 @@ public class PlaceController {
     }
 
     @GetMapping("/{type}")
+    @CrossOrigin
     public List<Place> findClosestOfType(@PathVariable String type,
                                          @RequestParam Double myLon,
                                          @RequestParam Double myLat,
@@ -27,6 +29,7 @@ public class PlaceController {
     }
 
     @GetMapping("/all/{type}")
+    @CrossOrigin
     public List<Place> findAllOfType(@PathVariable String type) {
         return placeService.findAllOfType(type);
     }
@@ -37,6 +40,7 @@ public class PlaceController {
     }
 
     @GetMapping()
+    @CrossOrigin
     public ResponseEntity<Place> findById(@RequestParam Long id) {
         return placeService.findById(id)
                 .map(place -> ResponseEntity.ok().body(place))
@@ -44,7 +48,8 @@ public class PlaceController {
     }
 
     @GetMapping("/radius/{type}")
-    public List<Place> findClosestOfTypeWithinRadus(@PathVariable String type,
+    @CrossOrigin
+    public List<Place> findClosestOfTypeWithinRadius(@PathVariable String type,
                                                     @RequestParam Double myLon,
                                                     @RequestParam Double myLat,
                                                     @RequestParam Double radius) {

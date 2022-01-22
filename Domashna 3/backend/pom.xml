@@ -50,6 +50,7 @@
                 </configuration>
             </plugin>
         </plugins>
+        <finalName>sipnsnack-backend</finalName>
     </build>
 
 </project>

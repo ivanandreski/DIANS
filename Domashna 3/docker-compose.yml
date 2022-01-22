@@ -1,0 +1,21 @@
+# Docker Compose file Reference (https://docs.docker.com/compose/compose-file/)
+version: '3'
+
+#Define services
+services:
+  #Back-end Spring Boot Application
+  backend:
+    #The docker file in scrum-app build the jar and provides the docker image with the following name.
+    build: ./backend
+    container_name: backend
+    ports:
+      - 8080:8080 # Forward the exposed port 8080 on the container to port 8080 on the host machine
+
+  #Fron-end Angular Application
+  frontend:
+    build: ./sip-and-snack-client
+    container_name: sip-and-snack-client
+    ports:
+      - 4200:80
+    links:
+      - backend
