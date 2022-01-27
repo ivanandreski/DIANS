@@ -1,11 +1,13 @@
 <nb-layout>
   <nb-layout-column>
     <div [formGroup]="form" class="header">
-      <input [nbAutocomplete]="auto" formControlName="search" nbInput placeholder="Search for a place..." shape="round"
+      <input [nbAutocomplete]="auto" [nbSpinner]="loadingSearch" formControlName="search" nbInput
+             placeholder="Search for a place..." shape="round"
              status="primary" type="text">
 
       <div *ngIf="!isMobile">
-        <nb-button-group (valueChange)="onSelectType($event)" shape="round" status="primary">
+        <nb-button-group (valueChange)="onSelectType($event)" [nbSpinner]="loadingType"
+                         nbSpinnerSize="giant" nbSpinnerStatus="danger" shape="round" status="primary">
           <button nbButtonToggle value="bar">bar</button>
           <button nbButtonToggle value="pub">pub</button>
           <button nbButtonToggle value="cafe">cafe</button>
@@ -15,8 +17,8 @@
       </div>
 
       <div *ngIf="!isMobile" class="path">
-        <button (click)="drawRoads()" [disabled]="!selectedDestination || !userLocation" nbButton shape="round"
-                status="primary">
+        <button (click)="drawRoads()" [disabled]="!selectedDestination || !userLocation" [nbSpinner]="loadingPath"
+                nbSpinnerSize="giant" nbSpinnerStatus="danger" nbButton shape="round" status="primary">
           PATH
         </button>
         <nb-select [(selected)]="selectedTravelKind" formControlName="travelKind" placeholder="Select kind of travel..."
@@ -27,17 +29,19 @@
         </nb-select>
       </div>
     </div>
-    <div class="map-container">
+    <div [nbSpinner]="loadingPath || loadingType" class="map-container" nbSpinnerSize="giant" nbSpinnerStatus="danger">
       <div class="map-frame">
         <div id="map"></div>
       </div>
     </div>
     <div *ngIf="isMobile" [formGroup]="form" class="footer">
-      <button (click)="drawRoads()" [disabled]="!selectedDestination || !userLocation" nbButton shape="round" size="giant"
+      <button (click)="drawRoads()" [disabled]="!selectedDestination || !userLocation" nbButton shape="round"
+              size="giant"
               status="primary">
         <nb-icon icon="corner-right-up-outline"></nb-icon>
       </button>
-      <button [nbContextMenu]="typeContextItems" nbButton nbContextMenuTag="type-context-menu" shape="round" size="giant"
+      <button [nbContextMenu]="typeContextItems" nbButton nbContextMenuTag="type-context-menu" shape="round"
+              size="giant"
               status="primary">
         TYPE
       </button>
