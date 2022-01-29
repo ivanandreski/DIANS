@@ -1,7 +1,7 @@
 import { AfterViewInit, Component, OnInit }                                          from '@angular/core';
 import * as Leaflet                                                                  from 'leaflet';
 import { MarkerService }                                                             from '../../services/marker.service';
-import { ICON_DEFAULT, TILE_LAYER }                                                  from '../../domain/constants';
+import { ICON_DEFAULT, TILE_LAYER, TYPE_CONTEXT_ITEMS }                              from '../../domain/constants';
 import { MapLocation }                                                               from '../../domain/map-location';
 import { MapService }                                                                from '../../services/map.service';
 import { MapItem }                                                                   from '../../domain/map-item';
@@ -18,22 +18,20 @@ import { debounceTime, distinctUntilChanged, filter, map, Observable }          
 })
 export class MapComponent implements OnInit, AfterViewInit {
 
-  userLocation: MapLocation | null = null;
-  selectedDestination: MapLocation | null = null;
   form: FormGroup;
+  travelKindIcon = 'walking';
   selectedTravelKind = 'foot-walking';
   isMobile = false;
-  travelKindIcon = 'walking';
+  loadingSearch = false;
+  loadingType = false;
+  loadingPath = false;
+  userLocation: MapLocation | null = null;
+  selectedDestination: MapLocation | null = null;
   searchPlaces: MapItem[] = [];
   search$: Observable<MapItem[]>;
-  typeContextItems = [
-    { title: 'Bar', data: 'bar' },
-    { title: 'Pub', data: 'pub' },
-    { title: 'Cafe', data: 'cafe' },
-    { title: 'Fast Food', data: 'fast_food' },
-    { title: 'Restaurant', data: 'restaurant' }];
-  private map;
-  private markerLayer;
+  typeContextItems = TYPE_CONTEXT_ITEMS;
+  private map: Leaflet.Map;
+  private markerLayer: Leaflet.LayerGroup;
   private roadLayer;
   private userLocationLayer;
   private radiusLayer;
@@ -75,38 +73,36 @@ export class MapComponent implements OnInit, AfterViewInit {
       .subscribe(search => {
         if (search !== '' || search !== null) {
           this.apiService.getPlacesFromSearch(search)
-            .subscribe((val) => {
-              this.searchPlaces = val.slice(0, 10);
-            });
+            .subscribe(val => this.searchPlaces = val.slice(0, 10),
+              () => this.loadingSearch = false);
         }
       });
   }
 
   ngAfterViewInit(): void {
     this.initMap();
-    this.getLocation(this.map);
+    this.getLocation();
   }
 
   drawRoads() {
+    this.loadingPath = true;
     this.mapService.getRoadLocations(this.userLocation!, this.selectedDestination!, this.form.value.travelKind)
-      .subscribe((val: any) => {
+      .subscribe(val => {
           this.roadLayer.clearLayers();
           const wayPoints = this.mapService.getRoads(val);
           const polyline = Leaflet.polyline(wayPoints, { color: '#3366ff', opacity: 1, weight: 3 });
           polyline.addTo(this.roadLayer);
+          this.loadingPath = false;
         },
-        error => {
+        () => {
+          this.loadingPath = false;
           this.toastrService.danger('Something went wrong while retrieving path data!', 'Error', { position: NbGlobalPhysicalPosition.BOTTOM_RIGHT });
         });
   }
 
   onSelectType(type: string[]) {
-    if (this.userLocation) {
-      this.getPlacesInRadius(type[0], this.userLocation);
-    }
-    else {
-      this.getPlacesByType(type[0]);
-    }
+    if (this.userLocation) this.getPlacesInRadius(type[0], this.userLocation);
+    else this.getPlacesByType(type[0]);
 
     this.roadLayer.clearLayers();
   }
@@ -156,64 +152,44 @@ export class MapComponent implements OnInit, AfterViewInit {
     }
   }
 
-  private getLocation(map: Leaflet.Map) {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          if (position) {
-            const lon = position.coords.longitude;
-            const lat = position.coords.latitude;
-            this.userLocation = { lat, lon };
-            this.userLocationLayer.clearLayers();
-            this.markerService.addMarker(this.userLocationLayer, lat, lon);
-            Leaflet.circle([lat, lon], 10000, { color: 'green' }).addTo(this.radiusLayer);
-            map.setView([lat, lon], 12);
-          }
-        },
-        (error) => console.log(error),
-        {
-          enableHighAccuracy: true,
-          timeout: 10000,
-          maximumAge: 0
-        }
-      );
+  private getLocation() {
+    this.mapService.getLocation()
+      .subscribe(coords => {
+        this.locationHandler(coords);
+        this.map.setView([coords.latitude, coords.longitude], 12);
+      });
 
-      navigator.geolocation.watchPosition(
-        (position) => {
-          if (position) {
-            const lon = position.coords.longitude;
-            const lat = position.coords.latitude;
-            this.userLocation = { lat, lon };
-            this.userLocationLayer.clearLayers();
-            this.markerService.addMarker(this.userLocationLayer, lat, lon);
-            this.radiusLayer.clearLayers();
-            Leaflet.circle([lat, lon], 10000, { color: 'green' }).addTo(this.radiusLayer);
-          }
-        },
-        (error) => console.log(error),
-        {
-          enableHighAccuracy: true,
-          timeout: 10000,
-          maximumAge: 0
-        }
-      );
-    }
-    else {
-      alert('Browser doesn\'t support location.');
-    }
+    this.mapService.watchPosition()
+      .subscribe(coords => {
+        this.radiusLayer.clearLayers();
+        this.locationHandler(coords);
+      });
   }
 
   private getPlacesByType(type: string) {
+    this.loadingType = true;
     this.apiService.getPlacesForType(type)
       .subscribe(it => {
+        this.loadingType = false;
         this.makeMarkers(this.markerLayer, it);
       });
   }
 
   private getPlacesInRadius(type: string, location: MapLocation) {
+    this.loadingType = true;
     this.apiService.getPlacesInRadius(type, location)
       .subscribe(it => {
+        this.loadingType = false;
         this.makeMarkers(this.markerLayer, it);
       });
+  }
+
+  private locationHandler(coords: GeolocationCoordinates) {
+    const lon = coords.longitude;
+    const lat = coords.latitude;
+    this.userLocation = { lat, lon };
+    this.userLocationLayer.clearLayers();
+    this.markerService.addMarker(this.userLocationLayer, lat, lon);
+    Leaflet.circle([lat, lon], 10000, { color: 'lightskyblue' }).addTo(this.radiusLayer);
   }
 }

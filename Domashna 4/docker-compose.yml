@@ -11,7 +11,7 @@ services:
     ports:
       - 8080:8080 # Forward the exposed port 8080 on the container to port 8080 on the host machine
 
-  #Fron-end Angular Application
+  #Front-end Angular Application
   frontend:
     build: ./sip-and-snack-client
     container_name: sip-and-snack-client

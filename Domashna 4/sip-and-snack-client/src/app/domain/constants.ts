@@ -1,9 +1,15 @@
 import * as Leaflet from 'leaflet';
 
-export const ICON_RETINA_URL = 'assets/marker-icon-2x.png';
-export const ICON_BLUE_URL = 'assets/map-marker-icon-blue.png';
-export const ICON_RED_URL = 'assets/map-marker-icon-red.png';
-export const SHADOW_URL = 'assets/marker-shadow.png';
+const ICON_RETINA_URL = 'assets/marker-icon-2x.png';
+const ICON_BLUE_URL = 'assets/map-marker-icon-blue.png';
+const ICON_RED_URL = 'assets/map-marker-icon-red.png';
+const SHADOW_URL = 'assets/marker-shadow.png';
+export const TYPE_CONTEXT_ITEMS = [
+  { title: 'Bar', data: 'bar' },
+  { title: 'Pub', data: 'pub' },
+  { title: 'Cafe', data: 'cafe' },
+  { title: 'Fast Food', data: 'fast_food' },
+  { title: 'Restaurant', data: 'restaurant' }];
 export const ICON_DEFAULT = Leaflet.icon({
   iconRetinaUrl: ICON_RETINA_URL,
   iconUrl: ICON_BLUE_URL,

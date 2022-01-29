@@ -17,6 +17,7 @@ import {
   NbMenuService,
   NbPopoverModule,
   NbSelectModule,
+  NbSpinnerModule,
   NbThemeModule,
   NbToastrModule,
   NbWindowModule
@@ -55,6 +56,7 @@ import { BrowserAnimationsModule, NoopAnimationsModule } from '@angular/platform
     NbMenuModule.forRoot(),
     NbContextMenuModule,
     NbAutocompleteModule,
+    NbSpinnerModule
   ],
   providers: [
     MarkerService,
