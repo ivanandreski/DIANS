@@ -3,38 +3,69 @@ package mk.finki.dians.backend.backend.utils.impl;
 import mk.finki.dians.backend.backend.utils.ScriptConverter;
 import org.springframework.stereotype.Component;
 
-@Component
-public class ScriptConverterImpl implements ScriptConverter {
+import java.util.HashMap;
+import java.util.Locale;
 
-    @Override
-    public String convertCyrilicToLatin(String message){
-        char[] abcCyr =   {' ','а','б','в','г','д','ѓ','е', 'ж','з','ѕ','и','ј','к','л','љ','м','н','њ','о','п','р','с','т', 'ќ','у', 'ф','х','ц','ч','џ','ш', 'А','Б','В','Г','Д','Ѓ','Е', 'Ж','З','Ѕ','И','Ј','К','Л','Љ','М','Н','Њ','О','П','Р','С','Т', 'Ќ', 'У','Ф', 'Х','Ц','Ч','Џ','Ш','a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z','A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z','1','2','3','4','5','6','7','8','9','/','-'};
-        String[] abcLat = {" ","a","b","v","g","d","]","e","zh","z","y","i","j","k","l","q","m","n","w","o","p","r","s","t","'","u","f","h", "c",";", "x","{","A","B","V","G","D","}","E","Zh","Z","Y","I","J","K","L","Q","M","N","W","O","P","R","S","T","KJ","U","F","H", "C",":", "X","{", "a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z","A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z","1","2","3","4","5","6","7","8","9","/","-"};
-        StringBuilder builder = new StringBuilder();
-        for (int i = 0; i < message.length(); i++) {
-            for (int x = 0; x < abcCyr.length; x++ ) {
-                if (message.charAt(i) == abcCyr[x]) {
-                    builder.append(abcLat[x]);
-                    break;
-                }
-            }
+@Component
+public class ScriptConverterImpl implements ScriptConverter{
+
+    String[] cyrillic = {"а", "б", "в", "г", "д", "ѓ", "е", "ж", "з", "ѕ", "и", "ј", "к", "л", "љ", "м",
+            "н", "њ", "о", "п", "р", "с", "т", "ќ", "у", "ф", "х", "ц", "ч", "џ", "ш",
+            "к", "в", "ј", "кс"};
+    String[] latin = {"a", "b", "v", "g", "d", "gj", "e", "zh", "z", "dz", "i", "j", "k", "l", "lj", "m",
+            "n", "nj", "o", "p", "r", "s", "t", "kj", "u", "f", "h", "c", "ch", "dj", "sh",
+            "q", "w", "y", "x"};
+
+    HashMap<String, String> latinToCyrillic;
+    HashMap<String, String> cyrillicToLatin;
+    Locale MK = new Locale("mk", "MK");
+
+    public ScriptConverterImpl() {
+        latinToCyrillic = new HashMap<String, String>();
+        cyrillicToLatin = new HashMap<String, String>();
+
+        for (int i = 0; i < cyrillic.length; ++i) {
+            latinToCyrillic.put(latin[i], cyrillic[i]);
+            cyrillicToLatin.put(cyrillic[i], latin[i]);
         }
-        return builder.toString();
     }
 
-    @Override
-    public String convertLatinToCyrilic(String message){
-        char[] abcCyr = {'а','б','ц','д','е','ф','г','х','и','ј','к','л','м','н','о','п','/','р','с','т','у','в','/','/','/','з'};
-        char[] abcLat = {'a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z'};
+    public String convertCyrillicToLatin(String message) {
+        return convertHelper(message, cyrillicToLatin, MK, Locale.US);
+    }
+
+    public String convertLatinToCyrillic(String message) {
+        return convertHelper(message, latinToCyrillic, Locale.US, MK);
+    }
+
+    private String convertHelper(String message, HashMap<String, String> map, Locale fromLocale, Locale toLocale) {
         StringBuilder builder = new StringBuilder();
-        for (int i = 0; i < message.length(); i++) {
-            for (int x = 0; x < abcLat.length; x++ ) {
-                if (message.charAt(i) == abcLat[x]) {
-                    builder.append(abcCyr[x]);
+        for (int i = 0 ; i < message.length(); i++) {
+            if (i < message.length() - 1) {
+                String subStr = message.substring(i, i+2);
+                if (map.containsKey(subStr)) {
+                    builder.append(map.get(subStr));
+                    ++i;
+                    continue;
+                }
+                subStr = subStr.toLowerCase(fromLocale);
+                if (map.containsKey(subStr)) {
+                    builder.append(map.get(subStr).toUpperCase(toLocale));
+                    ++i;
+                    continue;
                 }
             }
-            if(builder.length() != i+1)
-                builder.append(message.charAt(i));
+            String subStr = message.substring(i, i+1);
+            if (map.containsKey(subStr)) {
+                builder.append(map.get(subStr));
+                continue;
+            }
+            subStr = subStr.toLowerCase(fromLocale);
+            if (map.containsKey(subStr)) {
+                builder.append(map.get(subStr).toUpperCase(toLocale));
+                continue;
+            }
+            builder.append(message.charAt(i));
         }
         return builder.toString();
     }

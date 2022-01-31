@@ -54,8 +54,8 @@ public class PlaceServiceImpl implements PlaceService {
         return placeRepository.findAll()
                 .stream()
                 .filter(place -> place.getName().toLowerCase().contains(param.toLowerCase()) ||
-                        place.getName().toLowerCase().contains(scriptConverter.convertCyrilicToLatin(param.toLowerCase())) ||
-                        place.getName().toLowerCase().contains(scriptConverter.convertLatinToCyrilic(param.toLowerCase())))
+                        place.getName().toLowerCase().contains(scriptConverter.convertCyrillicToLatin(param.toLowerCase())) ||
+                        place.getName().toLowerCase().contains(scriptConverter.convertLatinToCyrillic(param.toLowerCase())))
                 .distinct()
                 .collect(Collectors.toList());
     }
