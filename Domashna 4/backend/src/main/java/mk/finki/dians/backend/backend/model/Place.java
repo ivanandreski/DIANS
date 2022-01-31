@@ -1,6 +1,7 @@
 package mk.finki.dians.backend.backend.model;
 
 import lombok.Data;
+import mk.finki.dians.backend.backend.model.enumerations.LocationType;
 
 @Data
 public class Place {
@@ -8,9 +9,9 @@ public class Place {
     private Double lon;
     private Double lat;
     private String name;
-    private String type;
+    private LocationType type;
 
-    public Place(Long id, Double lon, Double lat, String name, String type) {
+    public Place(Long id, Double lon, Double lat, String name, LocationType type) {
         this.id = id;
         this.lon = lon;
         this.lat = lat;
@@ -18,7 +19,7 @@ public class Place {
         this.type = type;
     }
 
-    public static Place placeFactory(String[] csvString, String type) {
+    public static Place placeFactory(String[] csvString, LocationType type) {
         Long id = Long.parseLong(csvString[0]);
         Double longitude = Double.parseDouble(csvString[1]);
         Double latitude = Double.parseDouble(csvString[2]);

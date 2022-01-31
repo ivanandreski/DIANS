@@ -1,19 +1,17 @@
 package mk.finki.dians.backend.backend.repository;
 
 import mk.finki.dians.backend.backend.model.Place;
+import mk.finki.dians.backend.backend.model.enumerations.LocationType;
 import org.springframework.stereotype.Repository;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 
 @Repository
 public class PlaceRepository {
     private final String databasePath = "./database";
 
-    public List<Place> findAllOfType(String type) {
+    public List<Place> findAllOfType(LocationType type) {
         List<Place> allPlaces = new ArrayList<>();
         String path = String.format("%s/%s.csv", databasePath, type);
         File file = new File(path);
@@ -41,7 +39,8 @@ public class PlaceRepository {
                         String line = bf.readLine();
                         while ((line = bf.readLine()) != null) {
                             String[] placeArray = line.split(",");
-                            allPlaces.add(Place.placeFactory(placeArray, f.getName().replaceAll(".csv", "")));
+                            String type = f.getName().replaceAll(".csv", "").toUpperCase(Locale.US);
+                            allPlaces.add(Place.placeFactory(placeArray, LocationType.valueOf(type)));
                         }
                     } catch (IOException e) {
                         e.printStackTrace();

@@ -1,11 +1,13 @@
 package mk.finki.dians.backend.backend.web;
 
 import mk.finki.dians.backend.backend.model.Place;
+import mk.finki.dians.backend.backend.model.enumerations.LocationType;
 import mk.finki.dians.backend.backend.service.PlaceService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Locale;
 
 @RestController
 @RequestMapping("/api/place")
@@ -25,13 +27,13 @@ public class PlaceController {
                                          @RequestParam Double myLat,
                                          @RequestParam(required = false) Integer limit) {
 
-        return placeService.findClosestOfType(type, myLon, myLat, limit);
+        return placeService.findClosestOfType(LocationType.valueOf(type.toUpperCase(Locale.US)), myLon, myLat, limit);
     }
 
     @GetMapping("/all/{type}")
     @CrossOrigin
     public List<Place> findAllOfType(@PathVariable String type) {
-        return placeService.findAllOfType(type);
+        return placeService.findAllOfType(LocationType.valueOf(type.toUpperCase(Locale.US)));
     }
 
     @GetMapping("/search")
@@ -54,6 +56,6 @@ public class PlaceController {
                                                     @RequestParam Double myLat,
                                                     @RequestParam Double radius) {
 
-        return placeService.findClosestOfTypeInRadius(type, myLon, myLat, radius);
+        return placeService.findClosestOfTypeInRadius(LocationType.valueOf(type.toUpperCase(Locale.US)), myLon, myLat, radius);
     }
 }

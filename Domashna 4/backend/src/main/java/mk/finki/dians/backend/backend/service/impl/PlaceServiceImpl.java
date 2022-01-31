@@ -1,6 +1,7 @@
 package mk.finki.dians.backend.backend.service.impl;
 
 import mk.finki.dians.backend.backend.model.Place;
+import mk.finki.dians.backend.backend.model.enumerations.LocationType;
 import mk.finki.dians.backend.backend.repository.PlaceRepository;
 import mk.finki.dians.backend.backend.service.PlaceService;
 import mk.finki.dians.backend.backend.utils.DistanceCalculator;
@@ -23,12 +24,12 @@ public class PlaceServiceImpl implements PlaceService {
     }
 
     @Override
-    public List<Place> findAllOfType(String type) {
+    public List<Place> findAllOfType(LocationType type) {
         return placeRepository.findAllOfType(type);
     }
 
     @Override
-    public List<Place> findClosestOfType(String type, Double myLon, Double myLat, Integer limit) {
+    public List<Place> findClosestOfType(LocationType type, Double myLon, Double myLat, Integer limit) {
         List<Place> places = placeRepository.findAllOfType(type)
                 .stream()
                 .sorted(Comparator.comparing(place -> this.distanceCalculator.distanceInKilometers(myLon, myLat, place.getLon(), place.getLat())))
@@ -41,7 +42,7 @@ public class PlaceServiceImpl implements PlaceService {
     }
 
     @Override
-    public List<Place> findClosestOfTypeInRadius(String type, Double myLon, Double myLat, Double radius) {
+    public List<Place> findClosestOfTypeInRadius(LocationType type, Double myLon, Double myLat, Double radius) {
         return placeRepository.findAllOfType(type)
                 .stream()
                 .filter(place -> this.distanceCalculator.distanceInKilometers(myLon, myLat, place.getLon(), place.getLat()) < radius)
